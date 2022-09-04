@@ -1,0 +1,80 @@
+//Code for rgb LED light activated through 2 push buttons by Razniya Syed
+
+//Defining the LED
+int greenLed = 10;
+int redLed = 8;
+
+// Defining the buttons
+int greenButton = 4;
+int redButton = 2;
+
+void setup()
+{
+  pinMode (greenLed, OUTPUT);
+  pinMode (redLed, OUTPUT);
+  pinMode (greenButton, INPUT_PULLUP);
+  pinMode (redButton, INPUT_PULLUP);
+}
+
+void loop() {
+  
+ 
+  // Make LED puslate green colour on press of greenButton
+  
+  if(digitalRead(greenButton) == LOW){    //If green button is pressed
+    
+    //Blink on and off once
+    digitalWrite(greenLed, HIGH);        //LED on
+    delay(100);
+    digitalWrite(greenLed, LOW);         //LED off
+    delay(100);
+
+    //Blink on and off once
+    digitalWrite(greenLed, HIGH);       // LED on
+    delay(100);
+    digitalWrite(greenLed, LOW);        // LED off
+    
+    delay(300);                         // Longer delay between blinks for the pulsating effect
+
+    //Blink on and off once
+    digitalWrite(greenLed, HIGH);      // LED on
+    delay(100);                        
+    digitalWrite(greenLed, LOW);      // LED off
+    delay(100);
+
+    //Blink on and stay off            
+    digitalWrite(greenLed, HIGH);     // LED on
+    delay(100);
+    digitalWrite(greenLed, LOW);      // LED off
+ }
+
+    //Making Red button an on and off switch for red led
+    
+    if(digitalRead(redButton) == LOW){       //If button is pressed
+      delay(300);                            // delay by 3 seconds
+      if(digitalRead(redButton) == HIGH){    // Checking if red button is not pressed
+        boolean isOn = digitalRead(redLed);  // Checking if red Led is on
+
+        if(isOn){                            // If Led is on and button is pressed - switch off led
+          digitalWrite(redLed, LOW);
+          
+        }else{
+          digitalWrite(redLed, HIGH);       // Else led stays on
+        }
+      }
+    }
+
+// On push of both buttons, LED blink Green and Red alternatively
+ 
+ while(digitalRead(redButton) == LOW && digitalRead(greenButton) == LOW) // condition if both buttons are pressed
+ {
+    digitalWrite(greenLed, HIGH);    // Green on
+    delay(100);
+    digitalWrite(greenLed, LOW);    // Green off 
+
+    digitalWrite(redLed, HIGH);     // Red on
+    delay(100);
+    digitalWrite(redLed, LOW);      // Red off
+ }
+  
+}
