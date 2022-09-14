@@ -1,0 +1,131 @@
+/*MTI_Assignment 2
+ * Phone shed, A rotating shed that responds to rain and extreme sunlight by Razniya Syed
+ * This code was written using codes from username pakganern, and Jaco Slabbert on github
+ 
+ Connections:
+ 
+ Rain sensor  
+    GND > GND
+    VCC > 5V
+    AS > A0
+    
+ Servo
+    Brown > GND
+    Red > 5V
+    Orange > 9
+    
+  Light resistor
+    One end > 220 ohm > A1
+    220 ohm > ground
+    Second end > 5V
+    
+ LCD Screen  GND > GND
+    VDD > 5V
+    SDA > A4
+    SCL > A5
+
+*/
+
+#include <Servo.h>
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+
+Servo myservo;
+
+int light;
+int lightThresh = 600;                // Threshold for extreme sunlight reading
+const int waterSens = A0;             // Rain Sensor
+int waterThresh = 550;              // Threshold for rain drops
+int pos = 0;
+int currentPos = 0;                 // Servo position
+int openPos = 135;                  // Servo Position when fully open
+int closePos = 0;
+
+
+void setup()
+{
+
+  Serial.begin(9600);
+ 
+  // initialize the LCD
+  lcd.begin();
+
+  // Turn on the blacklight and print a message.
+  lcd.backlight();
+
+  lcd.print("Checking Weather...");
+  delay(3000);
+
+  Serial.begin(9600);
+  myservo.attach(9);
+  myservo.write(currentPos);
+ 
+}
+
+void loop() {
+
+  light = analogRead(A1);
+  int lightVal = map(light, 550, 772, 0, 1000);               // mapping light sensor range
+
+  
+  int sensorValue = analogRead(waterSens);                    // Sensor value is reading from rain sensor
+    
+  if (sensorValue <= waterThresh || lightVal > lightThresh){   // Activate shed if rain sensor value is less than water threshold OR light sensor is more the light threshold
+
+    String message = sensorValue <= waterThresh ? "Raining!" : "Sunny!";  // Display text Raining or Sunny based on what sensor was activated
+    if(currentPos <=closePos){                                            
+    
+      
+
+  //Custom LCD actions
+
+      lcd.clear();
+      lcd.setCursor(0,1) ;                                                //sets cursor to second line first row
+      lcd.print(message);                              
+      lcd.setCursor(0,0);                                                // cursor to first position first line
+      
+      
+      lcd.print("Opening Shed!");                                        // Display Opening Shed as first line when sensors activated
+      delay(500); 
+    } 
+    
+    //Opening Shed slowly using servo motor
+    for (pos = currentPos; pos < openPos; pos += 1) {
+      myservo.write(pos);
+      delay(15);
+    }
+    
+    lcd.clear();
+    currentPos = pos;
+    delay(1000);
+  }
+
+  //Closing shed slowly using servo motor
+  if(sensorValue > waterThresh && lightVal < lightThresh){              // Closing the shed when both rain sensor AND light sensor are not active
+    
+    if(currentPos >= openPos){
+      lcd.clear ();
+      lcd.print("Closing Shed!");                                       //Display text as first line when closing Shed
+      delay(500);
+   
+    }
+    
+     
+     for (pos = currentPos; pos > closePos; pos -= 1) {
+       myservo.write(pos);
+       delay(15);
+     }
+     lcd.clear();
+     currentPos = pos;
+   }
+ 
+   // Print values for monitoring rain sensor and light sensor 
+    Serial.println(sensorValue);
+  delay(20);   
+
+    Serial.println(lightVal);
+  delay(100);
+    
+}
